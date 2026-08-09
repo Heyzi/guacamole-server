@@ -31,6 +31,19 @@ ACLOCAL_AMFLAGS = -I m4
 lib_LTLIBRARIES = libguac.la
 SUBDIRS = . tests
 
+# Benchmarks are built only when explicitly requested. Add future benchmark
+# binaries to EXTRA_PROGRAMS below, following the same pattern; each shares
+# the timing/statistics helpers in benchmarks/bench-stats.h rather than
+# reimplementing them.
+EXTRA_PROGRAMS = benchmark-display-flush-copy
+
+benchmark_display_flush_copy_SOURCES = \
+    benchmarks/bench-stats.h        \
+    benchmarks/display-flush-copy.c
+
+benchmark_display_flush_copy_CFLAGS = \
+    -O2 -Werror -Wall -pedantic
+
 #
 # Public headers
 #

@@ -160,17 +160,21 @@ static int PFW_LFW_guac_display_frame_complete(guac_display* display) {
 
         }
 
-        /* Copy over pending frame contents if actually changed (this is not
-         * necessary if the last_frame buffer was resized to match
-         * pending_frame, as a copy from pending_frame to last_frame is
-         * inherently part of that) */
+        /* Copy over pending frame contents if actually changed (skipped
+         * when the last_frame buffer was just resized to match, since that
+         * copy already covers this). We only need to touch the dirty rect
+         * here — outside it, pending_frame and last_frame already share
+         * the same geometry and the same pixels, so there's nothing left
+         * to copy. */
         else if (!guac_rect_is_empty(&current->pending_frame.dirty)) {
 
-            unsigned char* pending_frame = current->pending_frame.buffer;
-            unsigned char* last_frame = current->last_frame.buffer;
-            size_t row_length = guac_mem_ckd_mul_or_die(current->pending_frame.width, 4);
+            guac_rect dirty = current->pending_frame.dirty;
 
-            for (int y = 0; y < current->pending_frame.height; y++) {
+            const unsigned char* pending_frame = GUAC_DISPLAY_LAYER_STATE_CONST_BUFFER(current->pending_frame, dirty);
+            unsigned char* last_frame = GUAC_DISPLAY_LAYER_STATE_MUTABLE_BUFFER(current->last_frame, dirty);
+            size_t row_length = guac_mem_ckd_mul_or_die(guac_rect_width(&dirty), 4);
+
+            for (int y = dirty.top; y < dirty.bottom; y++) {
                 memcpy(last_frame, pending_frame, row_length);
                 last_frame += current->last_frame.buffer_stride;
                 pending_frame += current->pending_frame.buffer_stride;
