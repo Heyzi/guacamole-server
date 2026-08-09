@@ -61,6 +61,7 @@ test_libguac_SOURCES =               \
     pool/next_free.c                 \
     protocol/base64_decode.c         \
     protocol/guac_protocol_version.c \
+    protocol/png_write.c             \
     rect/align.c                     \
     rect/constrain.c                 \
     rect/extend.c                    \
@@ -85,6 +86,7 @@ test_libguac_CFLAGS =       \
 
 test_libguac_LDADD = \
     @CUNIT_LIBS@     \
+    @CAIRO_LIBS@     \
     @LIBGUAC_LTLIB@
 
 #

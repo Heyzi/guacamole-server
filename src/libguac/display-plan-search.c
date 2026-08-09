@@ -147,7 +147,7 @@ static int guac_hash_foreach_image_rect(guac_display_plan* plan,
     const unsigned char* data = GUAC_DISPLAY_LAYER_STATE_CONST_BUFFER(*layer_state, *rect);
 
     int x, y;
-    uint64_t cell_hash[GUAC_DISPLAY_MAX_WIDTH] = { 0 };
+    uint64_t cell_hash[GUAC_DISPLAY_MAX_WIDTH];
 
     /* NOTE: Because the hash value of the sliding 64x64 window is available
      * only upon reaching the bottom-right corner of that window, we offset the
@@ -164,6 +164,11 @@ static int guac_hash_foreach_image_rect(guac_display_plan* plan,
     int end_x   = rect->right  - GUAC_DISPLAY_CELL_SIZE + 1;
     int start_y = rect->top    - GUAC_DISPLAY_CELL_SIZE + 1;
     int end_y   = rect->bottom - GUAC_DISPLAY_CELL_SIZE + 1;
+
+    /* Only (end_x - start_x) entries are ever used - usually 64 (one cell),
+     * not the full 8192-wide array. */
+    if (end_x > start_x)
+        memset(cell_hash, 0, (size_t) (end_x - start_x) * sizeof(uint64_t));
 
     for (y = start_y; y < end_y; y++) {
 
